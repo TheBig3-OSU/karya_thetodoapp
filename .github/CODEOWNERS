@@ -1,0 +1,8 @@
+# Global rule — all PRs require review from at least one of these contributors.
+* @harshachaitanya27 @sasank0501 @Satvarsh
+
+# Frontend changes require a frontend reviewer
+frontend/ @harshachaitanya27 @sasank0501 @Satvarsh
+
+# Backend changes require a backend reviewer
+backend/ @harshachaitanya27 @sasank0501 @Satvarsh
