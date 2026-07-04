@@ -8,6 +8,13 @@ on:
     branches-ignore:
       - main
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   frontend:
     name: Frontend (React)
@@ -51,7 +58,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: '3.11'
           cache: 'pip'
           cache-dependency-path: backend/requirements.txt
 
@@ -59,11 +66,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run lint
-        run: |
-          pip install flake8 --quiet
-          flake8 . --max-line-length=120 --exclude=__pycache__,.venv
+        run: flake8 . --max-line-length=120 --exclude=__pycache__,.venv
 
       - name: Run unit tests
-        run: |
-          pip install pytest --quiet
-          pytest tests/ -v
+        run: pytest tests/ -v
