@@ -216,3 +216,12 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Node / frontend
+node_modules/
+frontend/dist/
+.env.local
+.env.*.local
+
+# The Python template's `lib/` rule above must not swallow frontend source.
+!frontend/src/lib/
