@@ -1,4 +1,4 @@
-"""Quick connectivity check: run `python check_db.py` from the backend/ dir.
+"""Quick connectivity check: run `python -m db.check_db` from the backend/ dir.
 
 Prints the Postgres version if the connection works, or the error if it doesn't.
 """
@@ -7,7 +7,7 @@ import asyncio
 
 from sqlalchemy import text
 
-from database import engine
+from db.database import engine
 
 
 async def main() -> None:
