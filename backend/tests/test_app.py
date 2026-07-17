@@ -1,7 +1,9 @@
 """CI-safe API tests: no database required.
 
-A dummy DATABASE_URL lets the app import in CI; async sessions are lazy, so
-requests that fail validation/auth before touching the DB work fine.
+A dummy DATABASE_URL lets the app import in CI (the engine is created
+lazily), and get_db is overridden with a fake session for the legacy
+unauthenticated endpoints; everything else fails validation/auth before
+touching the DB.
 """
 
 import os
@@ -13,8 +15,29 @@ os.environ.setdefault(
 from fastapi.testclient import TestClient  # noqa: E402
 
 from app import app  # noqa: E402
+from db.database import get_db  # noqa: E402
 from security import create_token, decode_token, hash_password, verify_password  # noqa: E402
 from services import generate_invite_code  # noqa: E402
+
+
+class _FakeResult:
+    def scalars(self):
+        return self
+
+    def all(self):
+        return []
+
+
+class _FakeSession:
+    async def execute(self, *args, **kwargs):
+        return _FakeResult()
+
+
+async def _override_get_db():
+    yield _FakeSession()
+
+
+app.dependency_overrides[get_db] = _override_get_db
 
 client = TestClient(app)
 
@@ -23,6 +46,30 @@ def test_root_health():
     response = client.get("/")
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
+
+
+def test_health():
+    response = client.get("/health")
+    assert response.status_code == 200
+    assert response.json() == {"ok": True}
+
+
+def test_legacy_list_tasks_returns_empty_list():
+    response = client.get("/api/tasks")
+    assert response.status_code == 200
+    assert response.json() == []
+
+
+def test_cors_allows_vercel_origins():
+    origin = "https://karya-git-staging-thebig3.vercel.app"
+    response = client.get("/health", headers={"Origin": origin})
+    assert response.headers["access-control-allow-origin"] == origin
+
+
+def test_cors_allows_local_dev_origin():
+    origin = "http://localhost:5173"
+    response = client.get("/health", headers={"Origin": origin})
+    assert response.headers["access-control-allow-origin"] == origin
 
 
 def test_spec_routes_registered():
