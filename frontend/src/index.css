@@ -46,6 +46,8 @@
     --radius-2xl: calc(var(--radius) * 1.8);
     --radius-3xl: calc(var(--radius) * 2.2);
     --radius-4xl: calc(var(--radius) * 2.6);
+    --color-house-tint: var(--house-tint);
+    --color-house-ink: var(--house-ink);
 }
 
 :root {
@@ -81,6 +83,13 @@
     --sidebar-accent-foreground: oklch(0.205 0 0);
     --sidebar-border: oklch(0.922 0 0);
     --sidebar-ring: oklch(0.708 0 0);
+
+    /* House onboarding — the app's one splash of brand color (plum → magenta).
+       Kept as tokens so the House screen stays rebrandable, like everything else. */
+    --house-grad-from: oklch(0.34 0.11 340);   /* dark plum (gradient start) */
+    --house-grad-to: oklch(0.53 0.17 350);     /* magenta (gradient end) */
+    --house-tint: oklch(0.94 0.03 340);        /* light circle/pill background */
+    --house-ink: oklch(0.42 0.13 340);         /* sigil icon color on the tint */
 }
 
 .dark {
@@ -115,6 +124,12 @@
     --sidebar-accent-foreground: oklch(0.985 0 0);
     --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.556 0 0);
+
+    /* House onboarding, dark-mode: brighter gradient, deeper tint for contrast. */
+    --house-grad-from: oklch(0.40 0.13 340);
+    --house-grad-to: oklch(0.62 0.19 350);
+    --house-tint: oklch(0.30 0.06 340);
+    --house-ink: oklch(0.85 0.08 340);
 }
 
 @layer base {

@@ -150,3 +150,17 @@ Living requirements doc for our shadcn/ui component set.
 - **Sizes:**     none
 - **States:**    hidden/visible (appears on hover or keyboard focus after a short delay)
 - **Showcase:**  /components/tooltip
+
+## Tabs
+- **Status:**    installed
+- **Import:**    `import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'`
+- **Used for:**  *(planned:)* Create / Join toggle on the House (team) onboarding screen — one panel to create a house, one to join by code. **Note:** the House screen (`/house/new`) uses a *custom* segmented control instead of this, because its design needs the active pill to **slide** between tabs; base-nova Tabs gives each trigger its own background (appears in place), so it can't animate a shared pill. Tabs remains the default for non-animated tab switching elsewhere.
+- **Types:**     none
+- **Variants:**  **on `TabsList`** (drift from classic shadcn, which has none): `default`
+  (filled segmented pill on `bg-muted` — what the House toggle uses), `line`
+  (transparent list, active tab underlined). `Tabs`/`TabsTrigger`/`TabsContent`
+  have no variants — composed from subcomponents; each `TabsTrigger`/`TabsContent`
+  is paired by a `value` prop (Base UI API)
+- **Sizes:**     none. `Tabs` root takes `orientation` (`horizontal` default / `vertical`) — an attribute, not a variant
+- **States:**    active/inactive tab (value state ← selected `value`), hover, focus-visible (keyboard ring), disabled
+- **Showcase:**  /components/tabs

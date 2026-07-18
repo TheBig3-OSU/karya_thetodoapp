@@ -25,7 +25,7 @@ Each component is built from two ingredients:
 - **Tailwind CSS classes** — all of the styling.
 
 
-## 2. The setup (already done — recorded so it's not magic)
+## 2. The setup 
 
 
 1. **Tailwind CSS v4** — installed as `tailwindcss` + `@tailwindcss/vite`
@@ -130,8 +130,7 @@ Every component follows the same five-step loop:
    each `Example` block renders the component **live** on top and the code to
    write below. Show every variant, every size, and the statically
    demonstrable states.
-5. **Use it** — components prove themselves in real features, not galleries.
-
+5. **Use it** — components prove themselves in real features.
 To use any component afterward: check `COMPONENTS.md` for the import line and
 just import it. That's the payoff of the whole system.
 
@@ -194,7 +193,7 @@ That line is §3 made concrete: the checkbox's appearance is a **value state**
 Every component follows this same loop; Checkbox just happens to demonstrate
 variant vs. state vs. value-state in one small file.
 
-## 7. Documentation principles we follow
+## 7. Documentation principles to follow
 
 - `COMPONENTS.md` is a **living contract**: check it before building UI,
   update it before adding components.
@@ -214,6 +213,62 @@ variant vs. state vs. value-state in one small file.
   of imports — so CSS *did* grow. Two build steps, two definitions of "used".
 - `npm run build` here runs `tsc --noEmit` first — the build is also our
   type-check. Identical output hashes = nothing changed.
+
+## 9. Resources to learn from
+
+Grouped by the layer you're touching. Each line is *what it's for → when to open
+it*. You don't need to read these front-to-back — reach for the one that matches the
+step you're on.
+
+**The component system (§1–§5)**
+- **shadcn/ui docs** — https://ui.shadcn.com/docs — the registry every
+  `npx shadcn add` pulls from. Read a component's page before installing (to see its
+  intended API/examples) and after (to compare against the source you now own, §6
+  step 3). Caveat: their examples import from **Radix**; ours use **Base UI** (§1), so
+  the class names match but the primitive import line differs.
+- **Base UI** — https://base-ui.com — the headless primitives under our components
+  (`@base-ui/react`). Open it when you need the real props a `Trigger`/`Tab`/`Panel`
+  accepts, the `value`-pairing on Tabs, or the `render={<Button/>}` pattern (§5).
+- **class-variance-authority (cva)** — https://cva.style/docs — how the variant maps
+  work (§4). Read before adding a key to a component's `cva()`.
+- **tailwind-merge** — https://github.com/dcastil/tailwind-merge — the conflict
+  resolver inside `cn()` (§2). One read explains why a caller's `px-2` beats a
+  component's `px-4`.
+
+**Styling (§2)**
+- **Tailwind CSS v4 docs** — https://tailwindcss.com/docs — every utility class.
+  **Filter for v4**: v3 tutorials show `tailwind.config.js` and `@tailwind base;`,
+  neither of which exists here. Live in: flex/grid, spacing, colors, state prefixes
+  (`hover:`, `focus-visible:`, `disabled:`), and arbitrary values (`bg-[...]`).
+- **Theme variables / `@theme`** — https://tailwindcss.com/docs/theme — how the
+  tokens in `src/index.css` become utilities like `bg-primary`. Read before adding
+  tokens (e.g. the `--house-*` set powering the onboarding gradient).
+- **tw-animate-css** — https://www.npmjs.com/package/tw-animate-css — the
+  `animate-in fade-in slide-in-from-*` enter animations. Pair with plain Tailwind
+  `transition-*` for things that move *while on screen* (the two are different tools —
+  see the House toggle vs. its reveal animations).
+
+**Framework, routing, types**
+- **React** — https://react.dev — start with *Describing the UI* and *Adding
+  Interactivity*. The "UI is a function of state" model (`useState`, events,
+  conditional rendering) is what every page here assumes.
+- **React Router v7** — https://reactrouter.com — `Routes`/`Route`/`Link`; how a page
+  file in `src/pages/` becomes a URL in `main.tsx`.
+- **TypeScript handbook** — https://www.typescriptlang.org/docs/handbook/intro.html —
+  typing props and understanding what `npm run type-check` is complaining about.
+- **Vite** — https://vite.dev — the dev server and build. Mostly you just run the npm
+  scripts; open this only when config (aliases, env vars) is involved.
+
+**Icons & feedback**
+- **Lucide** — https://lucide.dev/icons — search the icon set (`lucide-react`). Every
+  name maps to a PascalCase import: `Castle` → `import { Castle } from 'lucide-react'`.
+- **Sonner** — https://sonner.emilkowal.ski — the toast system: mount `<Toaster/>`
+  once, then call `toast.success(...)` from anywhere.
+
+**How to use this list:** match the resource to the step. Adding a variant? → cva +
+Tailwind. Wiring a new page? → React + React Router. Styling from the mockup? →
+Tailwind utilities + our `@theme` tokens. Stuck on a prop? → Base UI (not shadcn's
+Radix examples).
 
 ---
 
