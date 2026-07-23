@@ -55,6 +55,7 @@ class Team(Base):
 
     id: Mapped[int] = mapped_column(BigInteger, Identity(always=True), primary_key=True)
     name: Mapped[str] = mapped_column(Text, nullable=False)
+    invite_code: Mapped[str] = mapped_column(Text, nullable=False, unique=True)
     owner_id: Mapped[int] = mapped_column(
         BigInteger, ForeignKey("user_profile.id", ondelete="RESTRICT"), nullable=False
     )
@@ -169,6 +170,7 @@ class Task(Base):
     category: Mapped[Optional["TaskCategory"]] = relationship(back_populates="tasks")
     attachments: Mapped[list["TaskAttachment"]] = relationship(back_populates="task")
     posts: Mapped[list["Thread"]] = relationship(back_populates="task")
+    reactions: Mapped[list["TaskReaction"]] = relationship(back_populates="task")
 
     __table_args__ = (
         CheckConstraint("xp >= 0", name="tasks_xp_check"),
@@ -290,3 +292,29 @@ class Thread(Base):
     user: Mapped["UserProfile"] = relationship()
 
     __table_args__ = (Index("idx_threads_user", "user_id"),)
+
+
+# ---------- Reactions (emoji on Loka task cards) ----------
+class TaskReaction(Base):
+    __tablename__ = "task_reactions"
+
+    task_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("tasks.task_id", ondelete="CASCADE"), primary_key=True
+    )
+    user_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("user_profile.id", ondelete="CASCADE"), primary_key=True
+    )
+    emoji: Mapped[str] = mapped_column(Text, primary_key=True)
+    reacted_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+
+    task: Mapped["Task"] = relationship(back_populates="reactions")
+    user: Mapped["UserProfile"] = relationship()
+
+    __table_args__ = (
+        CheckConstraint(
+            "char_length(emoji) BETWEEN 1 AND 8", name="task_reactions_emoji_check"
+        ),
+        Index("idx_task_reactions_task", "task_id"),
+    )

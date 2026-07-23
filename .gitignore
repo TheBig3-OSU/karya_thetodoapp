@@ -225,3 +225,6 @@ frontend/dist/
 
 # The Python template's `lib/` rule above must not swallow frontend source.
 !frontend/src/lib/
+
+# macOS
+.DS_Store

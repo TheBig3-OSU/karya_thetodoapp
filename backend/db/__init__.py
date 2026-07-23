@@ -1,1 +1,1 @@
-"""Database package: connection (database.py) and ORM models (models.py)."""
+"""Database package for Karya: engine/session setup, ORM models, and SQL scripts."""

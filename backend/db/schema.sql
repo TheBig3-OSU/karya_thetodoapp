@@ -20,10 +20,11 @@ CREATE TABLE user_profile (
 
 -- ---------- Teams ----------
 CREATE TABLE teams (
-    id         BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    name       TEXT NOT NULL,
-    owner_id   BIGINT NOT NULL REFERENCES user_profile(id) ON DELETE RESTRICT,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    id          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name        TEXT NOT NULL,
+    invite_code TEXT NOT NULL UNIQUE,           -- join code shown in the Gana UI, e.g. VAJRA-7K2
+    owner_id    BIGINT NOT NULL REFERENCES user_profile(id) ON DELETE RESTRICT,
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX idx_teams_owner ON teams(owner_id);
 
@@ -121,3 +122,13 @@ CREATE TABLE threads (
     PRIMARY KEY (task_id, posted_at, user_id)
 );
 CREATE INDEX idx_threads_user ON threads(user_id);
+
+-- ---------- Reactions (emoji on Loka task cards) ----------
+CREATE TABLE task_reactions (
+    task_id    BIGINT NOT NULL REFERENCES tasks(task_id)   ON DELETE CASCADE,
+    user_id    BIGINT NOT NULL REFERENCES user_profile(id) ON DELETE CASCADE,
+    emoji      TEXT NOT NULL CHECK (char_length(emoji) BETWEEN 1 AND 8),
+    reacted_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    PRIMARY KEY (task_id, user_id, emoji)
+);
+CREATE INDEX idx_task_reactions_task ON task_reactions(task_id);
