@@ -4,6 +4,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import App from "./App";
+import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
 import ButtonPage from "./pages/components/ButtonPage";
 import BadgePage from "./pages/components/BadgePage";
 import DialogPage from "./pages/components/DialogPage";
@@ -17,6 +19,8 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<App />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
           <Route path="/house/new" element={<HouseOnboardingPage />} />
           <Route path="/components/button" element={<ButtonPage />} />
           <Route path="/components/badge" element={<BadgePage />} />

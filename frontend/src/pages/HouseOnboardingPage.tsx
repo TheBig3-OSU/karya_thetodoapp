@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { createTeam, joinTeam } from '@/lib/api'
 import {
   Anchor,
   ArrowRight,
@@ -36,7 +37,9 @@ const HOUSE_GRADIENT =
   'bg-[linear-gradient(90deg,var(--house-grad-from),var(--house-grad-to))]'
 
 export default function HouseOnboardingPage() {
+  const navigate = useNavigate()
   const [mode, setMode] = useState<Mode>('create')
+  const [loading, setLoading] = useState(false)
 
   // Create-flow state.
   const [name, setName] = useState('')
@@ -57,14 +60,21 @@ export default function HouseOnboardingPage() {
     setNameSubmitted(true)
   }
 
-  function handleContinue() {
-    if (mode === 'create') {
-      // No backend yet — surface the result the flow produced.
-      console.log({ mode, name: name.trim(), sigil: sigilId })
-      toast.success(`House "${name.trim()}" created`)
-    } else {
-      console.log({ mode, joinCode: joinCode.trim() })
-      toast.success('Joining house…')
+  async function handleContinue() {
+    setLoading(true)
+    try {
+      if (mode === 'create') {
+        await createTeam(name.trim())
+        toast.success(`House "${name.trim()}" created`)
+      } else {
+        await joinTeam(joinCode.trim())
+        toast.success('Joined house!')
+      }
+      navigate('/')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Something went wrong')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -184,12 +194,13 @@ export default function HouseOnboardingPage() {
           {createReady && (
             <Button
               onClick={handleContinue}
+              disabled={loading}
               className={cn(
                 'mt-auto h-12 text-base text-white duration-300 animate-in fade-in slide-in-from-bottom-2',
                 HOUSE_GRADIENT,
               )}
             >
-              Continue
+              {loading ? 'Creating…' : 'Continue'}
             </Button>
           )}
         </>
@@ -209,10 +220,10 @@ export default function HouseOnboardingPage() {
           </div>
           <Button
             onClick={handleContinue}
-            disabled={joinCode.trim() === ''}
+            disabled={joinCode.trim() === '' || loading}
             className={cn('mt-auto h-12 text-base text-white', HOUSE_GRADIENT)}
           >
-            Continue
+            {loading ? 'Joining…' : 'Continue'}
           </Button>
         </div>
       )}
