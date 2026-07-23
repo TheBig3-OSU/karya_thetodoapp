@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { fetchHealth, fetchTasks, type Task } from './lib/api'
+import { fetchHealth, fetchTasks, getToken, type Task } from './lib/api'
 
 type ApiStatus = 'checking' | 'connected' | 'unreachable'
 
@@ -15,6 +15,7 @@ function App() {
       if (cancelled) return
       setApiStatus(healthy ? 'connected' : 'unreachable')
       if (!healthy) return
+      if (!getToken()) return   // not logged in yet
       try {
         const data = await fetchTasks()
         if (!cancelled) setTasks(data)

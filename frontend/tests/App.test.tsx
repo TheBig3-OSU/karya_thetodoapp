@@ -17,6 +17,7 @@ function mockFetch(handler: (url: string) => unknown) {
 
 afterEach(() => {
   vi.unstubAllGlobals()
+  localStorage.removeItem('karya_token')
 })
 
 test('renders app heading', async () => {
@@ -36,6 +37,7 @@ test('shows connected status and empty state when API is up', async () => {
 })
 
 test('lists tasks returned by the API', async () => {
+  localStorage.setItem('karya_token', 'test-token')
   mockFetch((url) =>
     url.endsWith('/health')
       ? { ok: true }
