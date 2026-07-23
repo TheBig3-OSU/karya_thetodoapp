@@ -230,25 +230,31 @@ def test_register_rejects_username_too_short():
     r = client.post("/auth/register", json={"username": "ab", "password": "longenough1"})
     assert r.status_code == 422
 
+
 def test_register_rejects_username_too_long():
     r = client.post("/auth/register", json={"username": "a" * 31, "password": "longenough1"})
     assert r.status_code == 422
+
 
 def test_register_rejects_username_with_spaces():
     r = client.post("/auth/register", json={"username": "bad name", "password": "longenough1"})
     assert r.status_code == 422
 
+
 def test_register_rejects_password_too_long():
     r = client.post("/auth/register", json={"username": "hero", "password": "x" * 129})
     assert r.status_code == 422
+
 
 def test_login_rejects_missing_username():
     r = client.post("/auth/login", json={"password": "somepassword"})
     assert r.status_code == 422
 
+
 def test_login_rejects_missing_password():
     r = client.post("/auth/login", json={"username": "hero"})
     assert r.status_code == 422
+
 
 def test_login_rejects_empty_body():
     r = client.post("/auth/login", json={})
@@ -274,8 +280,10 @@ def test_login_rejects_empty_body():
     ("/tasks/1/reactions",   {"emoji": ""},           "empty emoji"),
     ("/tasks/1/reactions",   {"emoji": "x" * 9},      "emoji > 8 chars"),
     # /tasks/{id}/attachments
-    ("/tasks/1/attachments", {"file_url": "",                    "filename": "f.png"}, "empty file_url"),
-    ("/tasks/1/attachments", {"file_url": "https://x.com/f",    "filename": ""},       "empty filename"),
+    ("/tasks/1/attachments", {"file_url": "", "filename": "f.png"},
+     "empty file_url"),
+    ("/tasks/1/attachments", {"file_url": "https://x.com/f", "filename": ""},
+     "empty filename"),
     # /teams/{id}/categories
     ("/teams/1/categories",  {"name": ""},            "empty category name"),
     ("/teams/1/categories",  {"name": "x" * 41},      "category name > 40 chars"),
@@ -315,17 +323,21 @@ def test_token_contains_user_id():
     token = create_token(99)
     assert decode_token(token) == 99
 
+
 def test_token_rejects_tampered_payload():
     # A structurally valid JWT but with a wrong secret / tampered signature.
     tampered = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5OSJ9.invalidsignature"
     assert decode_token(tampered) is None
 
+
 def test_password_is_not_stored_in_plaintext():
     stored = hash_password("mypassword1")
     assert "mypassword1" not in stored
 
+
 def test_different_passwords_produce_different_hashes():
     assert hash_password("pass1_abc") != hash_password("pass2_xyz")
+
 
 def test_same_password_produces_different_hashes():
     # PBKDF2 uses a random salt each time.
@@ -333,10 +345,12 @@ def test_same_password_produces_different_hashes():
     h2 = hash_password("samepass1")
     assert h1 != h2
 
+
 def test_invite_code_is_uppercase():
     code = generate_invite_code("lowercase name")
     prefix = code.split("-")[0]
     assert prefix == prefix.upper()
+
 
 def test_invite_code_different_names_can_differ():
     # Two different names should not always produce the same suffix.

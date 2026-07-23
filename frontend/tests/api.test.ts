@@ -16,7 +16,7 @@ import {
   getTeam, listMembers, patchMember,
   listCategories, createCategory, getTeamFeed,
   // Tasks
-  fetchTasks, createTask, getTask, updateTask,
+  fetchTasks, createTask, getTask,
   completeTask, vouchTask, deleteTask,
   // Threads
   getThread, postReply,
