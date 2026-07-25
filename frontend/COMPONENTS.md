@@ -164,3 +164,23 @@ Living requirements doc for our shadcn/ui component set.
 - **Sizes:**     none. `Tabs` root takes `orientation` (`horizontal` default / `vertical`) — an attribute, not a variant
 - **States:**    active/inactive tab (value state ← selected `value`), hover, focus-visible (keyboard ring), disabled
 - **Showcase:**  /components/tabs
+
+## Avatar
+- **Status:**    installed
+- **Import:**    `import { Avatar, AvatarImage, AvatarFallback, AvatarGroup, AvatarGroupCount, AvatarBadge } from '@/components/ui/avatar'`
+- **Used for:**  user identity in the activity feed — initials fallback on each activity card + the XP header; *(planned:)* profile page, team-member lists
+- **Types:**     none
+- **Variants:**  none in the classic sense — composed from subcomponents. base-nova ships **extras beyond standard shadcn**: `AvatarBadge` (status dot on the avatar), `AvatarGroup` + `AvatarGroupCount` (overlapping avatars with a `+N` overflow chip)
+- **Sizes:**     `size` prop on `Avatar`: `sm` (24px) · `default` (32px) · `lg` (40px)
+- **States:**    image loaded / fallback shown (value state ← whether `AvatarImage` `src` resolves; feed uses fallback initials, no image)
+- **Showcase:**  /components/avatar
+
+## Progress
+- **Status:**    installed
+- **Import:**    `import { Progress } from '@/components/ui/progress'` (also exports `ProgressTrack, ProgressIndicator, ProgressLabel, ProgressValue` for custom composition)
+- **Used for:**  XP level bar in the feed header + per-task progress on activity cards; *(planned:)* `tasks.intermediary_progress`
+- **Types:**     none
+- **Variants:**  none. **Drift note:** base-nova `Progress` is **self-contained** — `<Progress value={60} />` renders its own track + indicator (Base UI drives the fill width from `value`); no manual track/indicator composition needed. Height/color via descendant selectors on the root `className` or the exported subcomponents
+- **Sizes:**     none (track defaults to `h-1`; override via `className`)
+- **States:**    value 0–100 (value state ← data); indeterminate when `value` is `null`/omitted
+- **Showcase:**  /components/progress
