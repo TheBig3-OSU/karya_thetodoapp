@@ -242,7 +242,7 @@ step you're on.
   (`hover:`, `focus-visible:`, `disabled:`), and arbitrary values (`bg-[...]`).
 - **Theme variables / `@theme`** — https://tailwindcss.com/docs/theme — how the
   tokens in `src/index.css` become utilities like `bg-primary`. Read before adding
-  tokens (e.g. the `--house-*` set powering the onboarding gradient).
+  tokens (e.g. the `--primary-plum-*` brand set powering the onboarding gradient).
 - **tw-animate-css** — https://www.npmjs.com/package/tw-animate-css — the
   `animate-in fade-in slide-in-from-*` enter animations. Pair with plain Tailwind
   `transition-*` for things that move *while on screen* (the two are different tools —
