@@ -1,6 +1,6 @@
-import { useState, type FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { createTeam, joinTeam } from '@/lib/api'
+import { useState, type FormEvent } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { createTeam, joinTeam } from "@/lib/api";
 import {
   Anchor,
   ArrowRight,
@@ -11,70 +11,70 @@ import {
   Gem,
   Shield,
   type LucideIcon,
-} from 'lucide-react'
-import { toast } from 'sonner'
+} from "lucide-react";
+import { toast } from "sonner";
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { cn } from '@/lib/utils'
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
-type Mode = 'create' | 'join'
+type Mode = "create" | "join";
 
 // The sigil options. `id` is what we persist; `Icon` is the lucide component.
 const SIGILS: { id: string; label: string; Icon: LucideIcon }[] = [
-  { id: 'castle', label: 'Castle', Icon: Castle },
-  { id: 'crown', label: 'Crown', Icon: Crown },
-  { id: 'shield', label: 'Shield', Icon: Shield },
-  { id: 'flame', label: 'Flame', Icon: Flame },
-  { id: 'anchor', label: 'Anchor', Icon: Anchor },
-  { id: 'feather', label: 'Feather', Icon: Feather },
-  { id: 'gem', label: 'Gem', Icon: Gem },
-]
+  { id: "castle", label: "Castle", Icon: Castle },
+  { id: "crown", label: "Crown", Icon: Crown },
+  { id: "shield", label: "Shield", Icon: Shield },
+  { id: "flame", label: "Flame", Icon: Flame },
+  { id: "anchor", label: "Anchor", Icon: Anchor },
+  { id: "feather", label: "Feather", Icon: Feather },
+  { id: "gem", label: "Gem", Icon: Gem },
+];
 
-// The gradient reused by the toggle pill and the Continue button.
-const HOUSE_GRADIENT =
-  'bg-[linear-gradient(90deg,var(--house-grad-from),var(--house-grad-to))]'
+// The plum brand gradient (defined once in index.css as the `bg-primary-plum`
+// utility), reused by the toggle pill and the Continue button.
+const PLUM_GRADIENT = "bg-primary-plum";
 
 export default function HouseOnboardingPage() {
-  const navigate = useNavigate()
-  const [mode, setMode] = useState<Mode>('create')
-  const [loading, setLoading] = useState(false)
+  const navigate = useNavigate();
+  const [mode, setMode] = useState<Mode>("create");
+  const [loading, setLoading] = useState(false);
 
   // Create-flow state.
-  const [name, setName] = useState('')
-  const [nameSubmitted, setNameSubmitted] = useState(false)
-  const [sigilId, setSigilId] = useState<string | null>(null)
+  const [name, setName] = useState("");
+  const [nameSubmitted, setNameSubmitted] = useState(false);
+  const [sigilId, setSigilId] = useState<string | null>(null);
 
   // Join-stub state.
-  const [joinCode, setJoinCode] = useState('')
+  const [joinCode, setJoinCode] = useState("");
 
-  const selectedSigil = SIGILS.find((s) => s.id === sigilId)
+  const selectedSigil = SIGILS.find((s) => s.id === sigilId);
   // Big preview shows the chosen sigil, else a dimmed placeholder.
-  const PreviewIcon = selectedSigil?.Icon ?? Castle
-  const createReady = nameSubmitted && sigilId !== null
+  const PreviewIcon = selectedSigil?.Icon ?? Castle;
+  const createReady = nameSubmitted && sigilId !== null;
 
   function submitName(e: FormEvent) {
-    e.preventDefault()
-    if (name.trim() === '') return
-    setNameSubmitted(true)
+    e.preventDefault();
+    if (name.trim() === "") return;
+    setNameSubmitted(true);
   }
 
   async function handleContinue() {
-    setLoading(true)
+    setLoading(true);
     try {
-      if (mode === 'create') {
-        await createTeam(name.trim())
-        toast.success(`House "${name.trim()}" created`)
+      if (mode === "create") {
+        await createTeam(name.trim());
+        toast.success(`House "${name.trim()}" created`);
       } else {
-        await joinTeam(joinCode.trim())
-        toast.success('Joined house!')
+        await joinTeam(joinCode.trim());
+        toast.success("Joined house!");
       }
-      navigate('/')
+      navigate("/");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Something went wrong')
+      toast.error(err instanceof Error ? err.message : "Something went wrong");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
@@ -95,19 +95,19 @@ export default function HouseOnboardingPage() {
         <span
           aria-hidden
           className={cn(
-            'pointer-events-none absolute inset-y-1 left-1 w-[calc(50%-0.25rem)] rounded-lg shadow-sm transition-transform duration-300 ease-out',
-            HOUSE_GRADIENT,
-            mode === 'join' && 'translate-x-full',
+            "pointer-events-none absolute inset-y-1 left-1 w-[calc(50%-0.25rem)] rounded-lg shadow-sm transition-transform duration-300 ease-out",
+            PLUM_GRADIENT,
+            mode === "join" && "translate-x-full",
           )}
         />
-        {(['create', 'join'] as const).map((m) => (
+        {(["create", "join"] as const).map((m) => (
           <button
             key={m}
             type="button"
             onClick={() => setMode(m)}
             className={cn(
-              'relative z-10 rounded-lg text-sm font-medium capitalize transition-colors',
-              mode === m ? 'text-white' : 'text-muted-foreground',
+              "relative z-10 rounded-lg text-sm font-medium capitalize transition-colors",
+              mode === m ? "text-white" : "text-muted-foreground",
             )}
           >
             {m}
@@ -115,25 +115,24 @@ export default function HouseOnboardingPage() {
         ))}
       </div>
 
-      {mode === 'create' ? (
+      {mode === "create" ? (
         <>
           {/* Big sigil preview */}
           <div className="flex flex-col items-center gap-3">
-            <div className="flex size-32 items-center justify-center rounded-full bg-house-tint">
+            <div className="flex size-32 items-center justify-center rounded-full bg-primary-plum-tint">
               <PreviewIcon
-                key={sigilId ?? 'placeholder'}
+                key={sigilId ?? "placeholder"}
                 className={cn(
-                  'size-14 text-house-ink duration-300 animate-in zoom-in',
-                  !selectedSigil && 'opacity-30',
+                  "size-14 text-primary-plum-ink duration-300 animate-in zoom-in",
+                  !selectedSigil && "opacity-30",
                 )}
               />
             </div>
-            {/* Name preview — appears once the name is submitted */}
-            {nameSubmitted && (
-              <p className="text-lg font-semibold duration-300 animate-in fade-in">
-                {name.trim()}
-              </p>
-            )}
+            {/* Name preview — updates live as the user types. Reserved height +
+                single-line truncate so no keystroke ever shifts the layout. */}
+            <p className="min-h-7 w-full truncate text-center text-lg font-semibold">
+              {name.trim()}
+            </p>
           </div>
 
           {/* House name field with nested submit arrow */}
@@ -153,7 +152,7 @@ export default function HouseOnboardingPage() {
                 size="icon-sm"
                 variant="ghost"
                 aria-label="Confirm house name"
-                disabled={name.trim() === ''}
+                disabled={name.trim() === ""}
                 className="absolute top-1/2 right-1.5 -translate-y-1/2"
               >
                 <ArrowRight />
@@ -165,9 +164,9 @@ export default function HouseOnboardingPage() {
           {nameSubmitted && (
             <div className="space-y-2 duration-500 animate-in fade-in slide-in-from-bottom-4">
               <Label>House sigil</Label>
-              <div className="flex items-center justify-between gap-1 rounded-xl bg-house-tint p-1.5">
+              <div className="flex items-center justify-between gap-1 rounded-xl bg-primary-plum-tint p-1.5">
                 {SIGILS.map(({ id, label, Icon }) => {
-                  const selected = id === sigilId
+                  const selected = id === sigilId;
                   return (
                     <button
                       key={id}
@@ -176,15 +175,15 @@ export default function HouseOnboardingPage() {
                       aria-label={label}
                       aria-pressed={selected}
                       className={cn(
-                        'flex size-9 items-center justify-center rounded-lg transition-colors',
+                        "flex size-9 items-center justify-center rounded-lg transition-colors",
                         selected
-                          ? 'bg-background text-house-ink shadow-sm'
-                          : 'text-house-ink/70 hover:text-house-ink',
+                          ? "bg-background text-primary-plum-ink shadow-sm"
+                          : "text-primary-plum-ink/70 hover:text-primary-plum-ink",
                       )}
                     >
                       <Icon className="size-5" />
                     </button>
-                  )
+                  );
                 })}
               </div>
             </div>
@@ -196,11 +195,11 @@ export default function HouseOnboardingPage() {
               onClick={handleContinue}
               disabled={loading}
               className={cn(
-                'mt-auto h-12 text-base text-white duration-300 animate-in fade-in slide-in-from-bottom-2',
-                HOUSE_GRADIENT,
+                "mt-auto h-12 text-base text-white duration-300 animate-in fade-in slide-in-from-bottom-2",
+                PLUM_GRADIENT,
               )}
             >
-              {loading ? 'Creating…' : 'Continue'}
+              {loading ? "Creating…" : "Continue"}
             </Button>
           )}
         </>
@@ -220,13 +219,13 @@ export default function HouseOnboardingPage() {
           </div>
           <Button
             onClick={handleContinue}
-            disabled={joinCode.trim() === '' || loading}
-            className={cn('mt-auto h-12 text-base text-white', HOUSE_GRADIENT)}
+            disabled={joinCode.trim() === "" || loading}
+            className={cn("mt-auto h-12 text-base text-white", PLUM_GRADIENT)}
           >
-            {loading ? 'Joining…' : 'Continue'}
+            {loading ? "Joining…" : "Continue"}
           </Button>
         </div>
       )}
     </main>
-  )
+  );
 }
