@@ -14,6 +14,7 @@ import HouseOnboardingPage from "./pages/HouseOnboardingPage";
 import ReturningFeedPage from "./pages/feed/ReturningFeedPage";
 import NewFeedPage from "./pages/feed/NewFeedPage";
 import TaskDetailPage from "./pages/feed/TaskDetailPage";
+import MyTaskPage from "./pages/feed/MyTaskPage";
 import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
@@ -33,6 +34,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
             path="/feed/task/:id/full"
             element={<TaskDetailPage variant="full" />}
           />
+          <Route path="/tasks/:id" element={<MyTaskPage />} />
           <Route path="/components/button" element={<ButtonPage />} />
           <Route path="/components/badge" element={<BadgePage />} />
           <Route path="/components/dialog" element={<DialogPage />} />
@@ -41,7 +43,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
           <Route path="/components/progress" element={<ProgressPage />} />
         </Routes>
       </BrowserRouter>
-      <Toaster />
+      <Toaster position="top-center" />
     </TooltipProvider>
   </React.StrictMode>,
 );

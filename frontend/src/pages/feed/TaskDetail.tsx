@@ -1,3 +1,5 @@
+import { useState } from 'react'
+import { toast } from 'sonner'
 import {
   ArrowLeft,
   Download,
@@ -14,8 +16,14 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { cn } from '@/lib/utils'
 import { type Activity, type Proof } from './data'
-import { NameWithTitle, VouchBadge } from './parts'
-import { PLUM_BAR, notReady } from './utils'
+import { CardActions, NameWithTitle, ReactionOverlay, VouchBadge } from './parts'
+import {
+  TASK_BAR,
+  notReady,
+  scrollToComments,
+  shareTask,
+  useReactions,
+} from './utils'
 import { CommentsCard } from './CommentThread'
 
 // Components only — helpers live in `utils.ts`, data in `data.ts`.
@@ -109,12 +117,30 @@ function TaskBlock({
   activity,
   onClose,
   blockSurface,
+  pickerOpen,
+  onOpenPicker,
+  onClosePicker,
 }: {
   activity: Activity
   onClose: () => void
   blockSurface: string
+  // Reaction state lives in TaskDetailContent (which also renders the overlay);
+  // the row's React button opens the picker at the button.
+  pickerOpen: boolean
+  onOpenPicker: () => void
+  onClosePicker: () => void
 }) {
-  const { user, title, progress, vouch } = activity
+  const { user, title, progress } = activity
+
+  // Vouching is active on the detail: open the post, look it over, then tap
+  // "Needs vouch" to back it. Local/mock state — it doesn't persist back to the
+  // feed (that needs shared state or a backend).
+  const [vouch, setVouch] = useState(activity.vouch)
+  function handleVouch() {
+    setVouch('vouched')
+    if (typeof navigator.vibrate === 'function') navigator.vibrate(12)
+    toast(`You vouched for ${user.name}`)
+  }
 
   return (
     <div className="space-y-4">
@@ -141,30 +167,41 @@ function TaskBlock({
           />
           <p className="text-xs text-muted-foreground">Lv {user.level}</p>
         </div>
-        <VouchBadge state={vouch} />
+        <VouchBadge state={vouch} onVouch={handleVouch} />
       </div>
 
       {/* Task + progress */}
       <div className="space-y-2">
         <p className="font-heading text-lg font-medium">{title}</p>
-        <Progress value={progress} className={PLUM_BAR} />
+        <Progress value={progress} className={TASK_BAR} />
       </div>
 
       {/* Proof of completion — image / link / PDF, or an "Add proof" upload
           state when none. Takes the block surface so it reads on both pages. */}
       <ProofBlock proof={activity.proof} surface={blockSurface} />
+
+      {/* Same react / comments / share row as the feed card. */}
+      <CardActions
+        pickerOpen={pickerOpen}
+        onOpenPicker={onOpenPicker}
+        onClosePicker={onClosePicker}
+        onComments={scrollToComments}
+        onShare={() => void shareTask(activity)}
+      />
     </div>
   )
 }
 
 /**
  * Shared detail body for both routes. The page is white in both variants; what
- * differs is the wrapper and, inverting with it, the block surfaces:
+ * differs is how the task and comments are framed:
  *
- *   expanded → the whole detail sits in ONE lavender card ("a feed card, opened
- *              up"); proof + comments are WHITE blocks nested inside it.
- *   full     → the task sits bare on the white page; proof + comments are
- *              LAVENDER blocks.
+ *   expanded → Reddit model. The task + proof live in ONE lavender card — a feed
+ *              card that moved to the top of the page — and the comments are "the
+ *              next part of the page": bare, edge-to-edge, no card. Proof reads as
+ *              a white block inside the lavender card.
+ *   full     → the task sits bare on the white page; proof + comments are their
+ *              own LAVENDER cards.
  */
 export function TaskDetailContent({
   activity,
@@ -175,26 +212,60 @@ export function TaskDetailContent({
   variant: DetailVariant
   onClose: () => void
 }) {
-  const blockSurface = variant === 'expanded' ? 'bg-background' : 'bg-card'
+  const { chosen, anchor, pickerOpen, openPicker, closePicker, choose } =
+    useReactions()
 
-  const body = (
-    <>
-      <TaskBlock
-        activity={activity}
-        onClose={onClose}
-        blockSurface={blockSurface}
-      />
-      <CommentsCard className={blockSurface} />
-    </>
+  // The reaction picker + chosen chip, pinned to the card (outside its clip) —
+  // same as the feed card. Shared across both variants.
+  const overlay = (
+    <ReactionOverlay
+      chosen={chosen}
+      anchor={anchor}
+      onChoose={choose}
+      onClose={closePicker}
+      onReopen={() => openPicker('card')}
+    />
   )
+
+  const pickerProps = {
+    pickerOpen,
+    onOpenPicker: () => openPicker('button'),
+    onClosePicker: closePicker,
+  }
 
   if (variant === 'expanded') {
     return (
-      <Card>
-        <CardContent className="space-y-3">{body}</CardContent>
-      </Card>
+      <div className="space-y-4">
+        <div className="relative">
+          {overlay}
+          <Card>
+            <CardContent className="space-y-4">
+              <TaskBlock
+                activity={activity}
+                onClose={onClose}
+                blockSurface="bg-background"
+                {...pickerProps}
+              />
+            </CardContent>
+          </Card>
+        </div>
+        <CommentsCard bare />
+      </div>
     )
   }
 
-  return <div className="space-y-3">{body}</div>
+  return (
+    <div className="space-y-3">
+      <div className="relative">
+        {overlay}
+        <TaskBlock
+          activity={activity}
+          onClose={onClose}
+          blockSurface="bg-card"
+          {...pickerProps}
+        />
+      </div>
+      <CommentsCard className="bg-card" />
+    </div>
+  )
 }

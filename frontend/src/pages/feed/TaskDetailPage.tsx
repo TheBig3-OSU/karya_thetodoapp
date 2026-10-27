@@ -4,7 +4,7 @@ import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { ACTIVITIES } from './data'
 import { BottomNav } from './parts'
 import { TaskDetailContent, type DetailVariant } from './TaskDetail'
-import type { Origin } from './utils'
+import { scrollToComments, type Origin } from './utils'
 
 // Grow-from-the-card animation. Two things the old version got wrong:
 //   1. `zoom-in-95` only scaled 95%→100% — a 5% change you can't see.
@@ -40,7 +40,12 @@ export default function TaskDetailPage({
 }) {
   const { id } = useParams()
   const navigate = useNavigate()
-  const origin = (useLocation().state as { origin?: Origin } | null)?.origin
+  const state = useLocation().state as {
+    origin?: Origin
+    focusComments?: boolean
+  } | null
+  const origin = state?.origin
+  const focusComments = state?.focusComments
 
   const elRef = useRef<HTMLDivElement>(null)
   // Origin in the column's own coordinate space, computed once at open and
@@ -74,6 +79,14 @@ export default function TaskDetailPage({
     return () => anim.cancel()
   }, [origin])
 
+  // Opened via a card's Comments button → land on the thread. Wait out the grow
+  // animation first so the scroll and the transform don't fight.
+  useEffect(() => {
+    if (!focusComments) return
+    const t = window.setTimeout(scrollToComments, OPEN_MS)
+    return () => window.clearTimeout(t)
+  }, [focusComments])
+
   const activity = ACTIVITIES.find((a) => String(a.id) === id)
   if (!activity) return <Navigate to="/feed" replace />
 
@@ -100,7 +113,7 @@ export default function TaskDetailPage({
 
   return (
     <div className="min-h-screen bg-background">
-      <div ref={elRef} className="mx-auto max-w-md px-4 pb-28 pt-4">
+      <div ref={elRef} className="mx-auto max-w-md px-4 pb-32 pt-4">
         <TaskDetailContent
           activity={activity}
           variant={variant}

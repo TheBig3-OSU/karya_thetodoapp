@@ -103,6 +103,17 @@
     /* Earned-title gold — the color of epithets ("the Loyal"), an "achievement"
        accent distinct from the plum brand. Deep amber, readable on light cards. */
     --title: oklch(0.58 0.13 72);
+
+    /* Task-progress fill — a punchier, horizontal plum gradient for the per-task
+       bars (distinct from the 135° CTA gradient). Lighter orchid-plum on the left
+       so the light→dark reads clearly along a thin bar. */
+    --task-progress-from: #9d4ba8;  /* lighter orchid-plum (left) */
+    --task-progress-to: #4a154b;    /* deep aubergine (right) */
+
+    /* XP-meter gold — the top progress bar goes gold so it stands apart from every
+       plum task bar. Same gold family as --title. */
+    --xp-from: #f3c66a;             /* light gold (left) */
+    --xp-to: #c98a1a;               /* deep amber (right) */
 }
 
 .dark {
@@ -146,16 +157,36 @@
 
     /* Earned-title gold, dark-mode: brighter so it reads on dark cards. */
     --title: oklch(0.80 0.14 82);
+
+    /* Task-progress + XP fills, dark-mode: brighter so they read on dark. */
+    --task-progress-from: oklch(0.62 0.16 322);
+    --task-progress-to: oklch(0.42 0.14 322);
+    --xp-from: oklch(0.86 0.13 90);
+    --xp-to: oklch(0.72 0.14 78);
 }
 
 /* Plum brand gradient as a reusable utility — one definition shared by primary
-   CTAs and progress fills across pages (House onboarding, Feed). */
+   CTAs across pages (House onboarding, Feed buttons). */
 @utility bg-primary-plum {
   background-image: linear-gradient(
     135deg,
     var(--primary-plum-from),
     var(--primary-plum-to)
   );
+}
+
+/* Per-task progress fill — horizontal so light→dark runs along the bar length. */
+@utility bg-task-progress {
+  background-image: linear-gradient(
+    90deg,
+    var(--task-progress-from),
+    var(--task-progress-to)
+  );
+}
+
+/* XP-meter fill — gold, horizontal, to set the top bar apart from task bars. */
+@utility bg-xp-gold {
+  background-image: linear-gradient(90deg, var(--xp-from), var(--xp-to));
 }
 
 @layer base {

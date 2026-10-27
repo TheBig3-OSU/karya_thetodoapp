@@ -143,12 +143,22 @@ function CommentNode({
 }
 
 /**
- * The comments thread in its own card — used by BOTH detail variants. The
- * surface is passed in (`className`) because it inverts per variant: white on
- * the expanded lavender page, lavender on the full white page. Replies nest
- * under whichever comment you answer, Reddit-style.
+ * The comments thread. Replies nest under whichever comment you answer,
+ * Reddit-style. Two shapes, per detail variant:
+ *
+ *   bare  → no card wrapper: the thread sits directly on the page and spans it
+ *           edge-to-edge (the Reddit model — the post is a card, the comments
+ *           are "the next part of the page"). Used by the expanded view.
+ *   card  → wrapped in a lavender Card. Used by the full-page view, where the
+ *           task sits bare and the comments need their own surface.
  */
-export function CommentsCard({ className }: { className?: string }) {
+export function CommentsCard({
+  className,
+  bare = false,
+}: {
+  className?: string
+  bare?: boolean
+}) {
   const [comments, setComments] = useState<Comment[]>(MOCK_COMMENTS)
   const [replyingTo, setReplyingTo] = useState<number | null>(null)
   const nextId = useRef(1000)
@@ -172,39 +182,66 @@ export function CommentsCard({ className }: { className?: string }) {
     setComments((prev) => [...prev, makeComment(text)])
   }
 
+  // In bare mode the composer is pinned just above the bottom nav (`bottom-16`)
+  // so it stays reachable while the thread scrolls — Reddit/messaging style. The
+  // `-mx-4 … px-4` + opaque background makes it a full-column bar the thread
+  // scrolls under. In card mode it's a plain inline row on the lavender card.
+  const composer = (
+    <div
+      className={
+        bare
+          ? 'sticky bottom-16 z-10 -mx-4 flex items-center gap-2 border-t bg-background px-4 py-3'
+          : 'flex items-center gap-2 border-t pt-3'
+      }
+    >
+      <Avatar size="sm">
+        <AvatarFallback className="bg-primary-plum-tint text-primary-plum-ink">
+          CN
+        </AvatarFallback>
+      </Avatar>
+      <div className="flex-1">
+        <CommentComposer
+          placeholder="Add a comment…"
+          onSubmit={handleRootComment}
+        />
+      </div>
+    </div>
+  )
+
+  const inner = (
+    <>
+      <p className="text-sm font-medium text-muted-foreground">comments</p>
+
+      <div className="space-y-3">
+        {comments.map((comment) => (
+          <CommentNode
+            key={comment.id}
+            comment={comment}
+            depth={0}
+            replyingTo={replyingTo}
+            onStartReply={setReplyingTo}
+            onCancelReply={() => setReplyingTo(null)}
+            onReply={handleReply}
+          />
+        ))}
+      </div>
+
+      {composer}
+    </>
+  )
+
+  // id="comments" is the scroll target for the Comments buttons (feed + detail).
+  if (bare) {
+    return (
+      <div id="comments" className={cn('scroll-mt-4 space-y-4', className)}>
+        {inner}
+      </div>
+    )
+  }
+
   return (
-    <Card className={className}>
-      <CardContent className="space-y-4">
-        <p className="text-sm font-medium text-muted-foreground">comments</p>
-
-        <div className="space-y-3">
-          {comments.map((comment) => (
-            <CommentNode
-              key={comment.id}
-              comment={comment}
-              depth={0}
-              replyingTo={replyingTo}
-              onStartReply={setReplyingTo}
-              onCancelReply={() => setReplyingTo(null)}
-              onReply={handleReply}
-            />
-          ))}
-        </div>
-
-        <div className="flex items-center gap-2 border-t pt-3">
-          <Avatar size="sm">
-            <AvatarFallback className="bg-primary-plum-tint text-primary-plum-ink">
-              CN
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1">
-            <CommentComposer
-              placeholder="Add a comment…"
-              onSubmit={handleRootComment}
-            />
-          </div>
-        </div>
-      </CardContent>
+    <Card id="comments" className={cn('scroll-mt-4', className)}>
+      <CardContent className="space-y-4">{inner}</CardContent>
     </Card>
   )
 }

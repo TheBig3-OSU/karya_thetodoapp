@@ -15,14 +15,19 @@ export default function ReturningFeedPage() {
   // Dev-only: two detail treatments to compare. Drop this once one is chosen.
   const [style, setStyle] = useState<DetailStyle>('expanded')
 
-  function handleOpen(activity: Activity, origin: Origin) {
+  function handleOpen(
+    activity: Activity,
+    origin: Origin,
+    opts?: { focusComments?: boolean },
+  ) {
     // Both variants are real pages; pass the tapped card's position so the
-    // detail grows out of it.
+    // detail grows out of it. `focusComments` (set by the card's Comments
+    // button) tells the detail to land on the thread.
     const path =
       style === 'expanded'
         ? `/feed/task/${activity.id}`
         : `/feed/task/${activity.id}/full`
-    navigate(path, { state: { origin } })
+    navigate(path, { state: { origin, focusComments: opts?.focusComments } })
   }
 
   return (
